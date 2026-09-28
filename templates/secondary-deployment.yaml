@@ -21,21 +21,22 @@ spec:
         - name: sync-worker
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          envFrom:
-            - configMapRef:
-                name: {{ .Release.Name }}-config
-            - secretRef:
-                name: {{ .Release.Name }}-secret
           env:
             - name: Service__IsPrimary
               value: "false"
           volumeMounts:
+            - name: env-volume
+              mountPath: /app/.env
+              subPath: .env
             - name: settings-volume
               mountPath: /app/settings/admins.json
               subPath: admins.json
             - name: logs-volume
               mountPath: /app/logs
       volumes:
+        - name: env-volume
+          secret:
+            secretName: {{ .Release.Name }}-env-file
         - name: settings-volume
           secret:
             secretName: {{ .Release.Name }}-exchange-admins
