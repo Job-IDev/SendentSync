@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-primary
+  labels:
+    app: {{ .Release.Name }}
+    component: primary
+spec:
+  replicas: 1 # The primary should strictly always be 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      component: primary
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        component: primary
+    spec:
+      containers:
+        - name: sync-worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-config
+            - secretRef:
+                name: {{ .Release.Name }}-secret
+          env:
+            - name: Service__IsPrimary
+              value: "true"
+          volumeMounts:
+            - name: settings-volume
+              mountPath: /app/settings/admins.json
+              subPath: admins.json
+            - name: logs-volume
+              mountPath: /app/logs
+      volumes:
+        - name: settings-volume
+          secret:
+            secretName: {{ .Release.Name }}-exchange-admins
+        - name: logs-volume
+          emptyDir: {}

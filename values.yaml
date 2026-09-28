@@ -1,0 +1,61 @@
+image:
+  repository: rg.nl-ams.scw.cloud/sendent-public/sendent-sync
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Number of secondary replicas
+secondary:
+  replicaCount: 2
+
+config:
+  deploymentType: "0" # 0 for Docker
+  defaultWorkerName: "SendentWorker"
+  batchLimit: "50"
+  workerIntervalSeconds: "60"
+  syncIntervalInSeconds: "60"
+  criticalSyncIntervalInSeconds: "100"
+  batchSaveSize: "100"
+  startWeekend: "6"
+  syncMode: "1"
+  syncType: "0"
+  
+  maxParallelProcessingUsers: "100"
+  maxUsersPerAdmin: "100"
+  fullSyncProcessAttachments: "true"
+  
+  sensitiveTitle: "Busy"
+  sensitiveCategory: "Nextcloud Sync"
+  
+  serilogMinLevel: "Error"
+  logsOutput: "9" # 9 = Console (1) + Grafana Loki (8)
+  lokiInternalUrl: "http://loki:3100"
+  logFileSizeLimit: "50"
+  logFileAmountLimit: "20"
+
+secrets:
+  # DB Type: Postgres(0), SqlServer(1), MariaDB(2), MySql(3)
+  databaseType: "2"
+  databaseEncryptionKey: "YourSuperSecretKey123!"
+  # Point this to your existing cluster MariaDB service
+  databaseConnectionString: "Server=mariadb-service-name;Port=3306;Database=SendentDB;Uid=sendent;Pwd=YourStrong!Pass123"
+
+  nextcloudBaseUrl: "your-nextcloud-base-url"
+  nextcloudServiceUsername: "your-nextcloud-admin"
+  nextcloudServicePassword: "your-nextcloud-password"
+  nextcloudSharedSecret: "your-shared-secret"
+
+  exchangeType: "1"
+  exchangeOnPremUrl: "https://outlook.office365.com/EWS/Exchange.asmx"
+  exchangeOnPremDomain: "your-domain"
+  exchangeOnPremAdfsAuthorityUrl: "your-adfs-authority-url"
+  exchangeTenantId: "yor-exchange-tenant-id"
+  exchangeAdminFile: "" # Leave empty to use default /app/settings/admins.json
+
+# Content for your admins.json file
+exchangeAdminsJson: |-
+  [
+    {
+      "Username": "admin@yourdomain.com",
+      "Password": "YourExchangeAdminPassword"
+    }
+  ]
